@@ -275,6 +275,34 @@ function initVideoModal() {
     });
 }
 
+document.writeln('<script src="https://unpkg.com/split-type"></script>'); // Dynamically load SplitType plugin for text scrubbing
+
+// =========================================
+// Lazy Video Playback Observer
+// =========================================
+function initLazyVideoPlayback() {
+    const videos = document.querySelectorAll('.project-video');
+    if (!videos.length) return;
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const video = entry.target;
+            if (entry.isIntersecting) {
+                // Play when visible
+                video.play().catch(e => console.log("Autoplay prevented:", e));
+            } else {
+                // Pause when out of view to save resources
+                video.pause();
+            }
+        });
+    }, {
+        root: null, // viewport
+        threshold: 0.2 // Trigger when 20% visible
+    });
+
+    videos.forEach(video => observer.observe(video));
+}
+
 // =========================================
 // Initialization & Navigation
 // =========================================
@@ -305,12 +333,13 @@ function initSmoothNavigation() {
     });
 }
 
-window.addEventListener('load', () => {
+document.addEventListener('DOMContentLoaded', () => {
     window.scrollTo(0, 0);
     initCursorEffects();
     initConstellationClick();
     initSmoothNavigation();
     initSnapHighlight();
     initVideoModal();
+    initLazyVideoPlayback();
     setTimeout(initV4Animations, 200);
 });
